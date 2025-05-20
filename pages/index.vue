@@ -1,69 +1,72 @@
 <template>
   <div>
-    <h1>Tienda Virtual</h1>
+    <header class="main-header">
+      <h1>Tienda Virtual</h1>
 
-    <div class="top-right-menu">
-      <div class="dropdown">
-        <button @click="toggleAdminMenu" class="dropbtn">Administrar Productos</button>
-        <div v-if="isAdminMenuOpen" class="dropdown-content">
-          <button @click="showAddProductForm" class="admin-button">Añadir Producto</button>
-          <button @click="showEditDeleteList" class="admin-button">Editar Productos</button>
+      <div class="top-right-menu">
+        <div class="dropdown">
+          <button @click="toggleAdminMenu" class="dropbtn">Administrar Productos</button>
+          <div v-if="isAdminMenuOpen" class="dropdown-content">
+            <button @click="showAddProductForm" class="admin-button">Añadir Producto</button>
+            <button @click="showEditDeleteList" class="admin-button">Editar Productos</button>
 
-          <div v-if="isAddProductFormVisible">
-            <h2>Añadir Producto</h2>
-            <div>
-              <label for="name">Nombre:</label>
-              <input type="text" id="name" v-model="newProduct.name">
+            <div v-if="isAddProductFormVisible">
+              <h2>Añadir Producto</h2>
+              <div>
+                <label for="name">Nombre:</label>
+                <input type="text" id="name" v-model="newProduct.name">
+              </div>
+              <div>
+                <label for="description">Descripción:</label>
+                <textarea id="description" v-model="newProduct.description"></textarea>
+              </div>
+              <div>
+                <label for="price">Precio:</label>
+                <input type="number" id="price" v-model.number="newProduct.price">
+              </div>
+              <div>
+                <label for="discount">Descuento (%):</label>
+                <input type="number" id="discount" v-model.number="newProduct.discount">
+              </div>
+              <div>
+                <label for="image">Imagen URL:</label>
+                <input type="text" id="image" v-model="newProduct.image">
+              </div>
+              <button @click="addProduct">Añadir</button>
             </div>
-            <div>
-              <label for="description">Descripción:</label>
-              <textarea id="description" v-model="newProduct.description"></textarea>
-            </div>
-            <div>
-              <label for="price">Precio:</label>
-              <input type="number" id="price" v-model.number="newProduct.price">
-            </div>
-            <div>
-              <label for="discount">Descuento (%):</label>
-              <input type="number" id="discount" v-model.number="newProduct.discount">
-            </div>
-            <div>
-              <label for="image">Imagen URL:</label>
-              <input type="text" id="image" v-model="newProduct.image">
-            </div>
-            <button @click="addProduct">Añadir</button>
-          </div>
 
-          <div v-if="isEditDeleteListVisible" class="edit-delete-list-container">
-            <h2>Editar Productos</h2>
-            <ul class="edit-delete-list">
-              <li v-for="(product, index) in products" :key="product.id">
-                <span>{{ product.name }}</span>
-                <button @click="startEdit(product)">Editar</button>
-                <button class="delete-button" @click="deleteProduct(product.id)">Eliminar</button>
-              </li>
-            </ul>
+            <div v-if="isEditDeleteListVisible" class="edit-delete-list-container">
+              <h2>Editar Productos</h2>
+              <ul class="edit-delete-list">
+                <li v-for="(product, index) in products" :key="product.id">
+                  <span>{{ product.name }}</span>
+                  <button @click="startEdit(product)">Editar</button>
+                  <button class="delete-button" @click="deleteProduct(product.id)">Eliminar</button>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="dropdown">
-        <button @click="toggleCart" class="dropbtn">
-          🛒 ({{ cart.length }})
-        </button>
-        <ShoppingCart
-          :cartItems="cart"
-          :isVisible="isCartVisible"
-          @close-cart="toggleCart"
-        />
+        <div class="dropdown">
+          <button @click="toggleCart" class="dropbtn">
+            🛒 ({{ cart.length }})
+          </button>
+          <ShoppingCart
+            :cartItems="cart"
+            :isVisible="isCartVisible"
+            @close-cart="toggleCart"
+          />
+        </div>
       </div>
-    </div>
+    </header>
 
     <div class="product-list">
       <ProductCard
         v-for="product in products"
         :key="product.id"
         :product="product"
+        @add-to-cart="addToCart"
       />
     </div>
 
@@ -170,11 +173,17 @@ export default {
       this.products = this.products.filter(product => product.id !== id);
     },
     addToCart(product) {
-      console.log('Función addToCart ejecutada', product)
       console.log('Producto añadido al carrito:', product);
-      this.cart.push(product);
+      // Busca si el producto ya existe en el carrito
+      const existingItem = this.cart.find(item => item.id === product.id);
+      if (existingItem) {
+        // Si existe, incrementa la cantidad
+        existingItem.quantity++;
+      } else {
+        // Si no existe, añádelo con cantidad 1
+        this.cart.push({ ...product, quantity: 1 });
+      }
       console.log('Contenido del carrito:', this.cart);
-      console.log('Carrito actual:', this.cart);
     },
     toggleCart() {
       this.isCartVisible = !this.isCartVisible;
@@ -189,19 +198,35 @@ export default {
 </script>
 
 <style scoped>
+/* Estilos generales */
+body {
+  margin: 0;
+  font-family: "Eras ITC", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #333;
+}
+
+/* Encabezado principal */
+.main-header {
+  background-color: #f0f0f0; /* Color de fondo para todo el encabezado */
+  padding: 20px;
+  display: flex;
+  justify-content: space-between; /* Alinea los elementos a los extremos */
+  align-items: center; /* Centra verticalmente los elementos */
+  position: relative; /* Necesario para que el menú superior derecho se posicione correctamente */
+  z-index: 10; /* Asegura que esté por encima de otros elementos */
+  margin-bottom: 20px; /* Espacio debajo del encabezado */
+}
+
 h1 {
-  text-align: center;
-  margin-bottom: 20px;
+  margin: 0; /* Elimina el margen por defecto del h1 */
   font-family: "Eras ITC", sans-serif;
 }
 
 .top-right-menu {
-  position: absolute;
-  top: 20px;
-  right: 20px;
   display: flex;
   gap: 20px;
-  z-index: 10;
   font-family: "Eras ITC", sans-serif;
 }
 
@@ -212,7 +237,7 @@ h1 {
 }
 
 .dropbtn {
-  background-color: #f9f9f9;
+  background-color: #e0e0e0;
   color: black;
   padding: 10px 15px;
   border: 1px solid #ccc;
@@ -233,6 +258,7 @@ h1 {
   border-radius: 5px;
   text-align: left;
   font-family: "Eras ITC", sans-serif;
+  right: 0; /* Alinea el menú desplegable a la derecha del botón */
 }
 
 .dropdown:hover .dropdown-content {
@@ -355,10 +381,62 @@ h1 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
-  margin-top: 20px;
   padding: 20px;
   font-family: "Eras ITC", sans-serif;
 }
 
-/* Estilos para el diálogo de edición se mantienen */
+/* Estilos para el diálogo de edición */
+dialog {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: "Eras ITC", sans-serif;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+dialog form div {
+  margin-bottom: 15px;
+}
+
+dialog form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+dialog form input[type="text"],
+dialog form input[type="number"],
+dialog form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+dialog form textarea {
+  min-height: 100px;
+}
+
+dialog form button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+dialog form button[type="submit"] {
+  background-color: #28a745;
+  color: white;
+}
+
+dialog form button[type="button"] {
+  background-color: #6c757d;
+  color: white;
+}
 </style>
