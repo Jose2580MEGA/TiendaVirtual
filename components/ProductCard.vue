@@ -13,7 +13,18 @@
     <div v-else class="price-container">
       <span class="current-price">${{ product.price.toFixed(2) }}</span>
     </div>
-    <button @click="$emit('add-to-cart', product)">Añadir al carrito</button>
+
+    <div class="add-to-cart-controls">
+      <label for="quantity-{{ product.id }}">Cantidad:</label>
+      <input
+        type="number"
+        :id="'quantity-' + product.id"
+        v-model.number="quantityToAdd"
+        min="1"
+        @input="validateQuantity"
+      />
+      <button @click="addToCartWithQuantity">Añadir al carrito</button>
+    </div>
   </div>
 </template>
 
@@ -25,14 +36,35 @@ export default {
       required: true
     }
   },
-  emits: ['add-to-cart'], // Se recomienda declarar los emits explícitamente
+  data() {
+    return {
+      quantityToAdd: 1 // Cantidad por defecto para añadir al carrito
+    };
+  },
+  emits: ['add-to-cart'],
   computed: {
     discountedPrice() {
-      if (this.product.discount) {
+      if (this.product.discount && this.product.discount > 0) {
         const discountAmount = (this.product.price * this.product.discount) / 100;
         return this.product.price - discountAmount;
       }
       return this.product.price;
+    }
+  },
+  methods: {
+    addToCartWithQuantity() {
+      // Asegurarse de que la cantidad sea al menos 1
+      if (this.quantityToAdd < 1) {
+        this.quantityToAdd = 1;
+      }
+      this.$emit('add-to-cart', this.product, this.quantityToAdd);
+      this.quantityToAdd = 1; // Resetear la cantidad a 1 después de añadir
+    },
+    validateQuantity() {
+      // Asegurarse de que la cantidad no sea menor que 1
+      if (this.quantityToAdd < 1) {
+        this.quantityToAdd = 1;
+      }
     }
   }
 };
@@ -104,6 +136,26 @@ h3 {
   font-weight: bold;
   color: rgb(0, 215, 0); /* Un verde un poco más agradable */
   font-size: 1.4em; /* Precio más grande */
+}
+
+.add-to-cart-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.add-to-cart-controls label {
+  font-size: 0.9em;
+}
+
+.add-to-cart-controls input[type="number"] {
+  width: 60px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
 }
 
 button {

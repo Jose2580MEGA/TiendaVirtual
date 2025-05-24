@@ -50,12 +50,15 @@
 
         <div class="dropdown">
           <button @click="toggleCart" class="dropbtn">
-            🛒 ({{ cart.length }})
+            🛒 ({{ cartItemCount }})
           </button>
           <ShoppingCart
             :cartItems="cart"
             :isVisible="isCartVisible"
             @close-cart="toggleCart"
+            @update-quantity="updateCartItemQuantity"
+            @remove-item="removeCartItem"
+            @checkout="handleCheckout"
           />
         </div>
       </div>
@@ -134,6 +137,11 @@ export default {
       isEditDeleteListVisible: false
     };
   },
+  computed: {
+    cartItemCount() {
+      return this.cart.reduce((total, item) => total + item.quantity, 0);
+    }
+  },
   methods: {
     showAddProductForm() {
       this.isAddProductFormVisible = true;
@@ -160,7 +168,18 @@ export default {
     saveEdit() {
       const index = this.products.findIndex(p => p.id === this.editingProduct.id);
       if (index !== -1) {
+        // Actualizar el producto en la lista de productos
         this.products.splice(index, 1, { ...this.editingProduct });
+
+        // También, actualiza el carrito si el producto editado está allí
+        const cartItem = this.cart.find(item => item.id === this.editingProduct.id);
+        if (cartItem) {
+          cartItem.name = this.editingProduct.name;
+          cartItem.description = this.editingProduct.description;
+          cartItem.price = this.editingProduct.price;
+          cartItem.discount = this.editingProduct.discount;
+          cartItem.image = this.editingProduct.image;
+        }
       }
       this.$refs.editDialog.close();
       this.editingProduct = { id: null, name: '', description: '', price: null, discount: null, image: '' };
@@ -171,19 +190,30 @@ export default {
     },
     deleteProduct(id) {
       this.products = this.products.filter(product => product.id !== id);
+      // Eliminar el producto del carrito si existe
+      this.cart = this.cart.filter(item => item.id !== id);
     },
-    addToCart(product) {
-      console.log('Producto añadido al carrito:', product);
-      // Busca si el producto ya existe en el carrito
+    addToCart(product, quantity = 1) { // Acepta la cantidad como argumento
+      console.log('Producto añadido al carrito:', product, 'Cantidad:', quantity);
       const existingItem = this.cart.find(item => item.id === product.id);
       if (existingItem) {
-        // Si existe, incrementa la cantidad
-        existingItem.quantity++;
+        existingItem.quantity += quantity;
       } else {
-        // Si no existe, añádelo con cantidad 1
-        this.cart.push({ ...product, quantity: 1 });
+        this.cart.push({ ...product, quantity: quantity });
       }
       console.log('Contenido del carrito:', this.cart);
+    },
+    updateCartItemQuantity({ productId, change }) {
+      const item = this.cart.find(i => i.id === productId);
+      if (item) {
+        item.quantity += change;
+        if (item.quantity <= 0) {
+          this.removeCartItem(productId);
+        }
+      }
+    },
+    removeCartItem(productId) {
+      this.cart = this.cart.filter(item => item.id !== productId);
     },
     toggleCart() {
       this.isCartVisible = !this.isCartVisible;
@@ -192,6 +222,15 @@ export default {
       this.isAdminMenuOpen = !this.isAdminMenuOpen;
       this.isAddProductFormVisible = false;
       this.isEditDeleteListVisible = false;
+    },
+    handleCheckout() {
+      if (this.cart.length > 0) {
+        alert('¡Gracias por su compra! Su pedido ha sido procesado.');
+        this.cart = []; // Vaciar el carrito después de la compra
+        this.isCartVisible = false; // Cerrar el carrito
+      } else {
+        alert('Su carrito está vacío. Añada productos para realizar una compra.');
+      }
     }
   }
 };
