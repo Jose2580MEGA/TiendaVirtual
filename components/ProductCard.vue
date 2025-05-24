@@ -53,7 +53,7 @@ export default {
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: #f00;
+  background-color: red;
   color: white;
   width: 40px; /* Aumentado el tamaño */
   height: 40px; /* Aumentado el tamaño */
@@ -102,12 +102,12 @@ h3 {
 
 .current-price {
   font-weight: bold;
-  color: #28a745; /* Un verde un poco más agradable */
+  color: rgb(0, 215, 0); /* Un verde un poco más agradable */
   font-size: 1.4em; /* Precio más grande */
 }
 
 button {
-  background-color: #007bff;
+  background-color: blueviolet;
   color: white;
   border: none;
   padding: 10px 20px; /* Padding ajustado */
@@ -118,6 +118,6 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: purple;
 }
 </style>

@@ -205,11 +205,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #333;
+  background-color: dimgray;
 }
 
 /* Encabezado principal */
 .main-header {
-  background-color: #f0f0f0; /* Color de fondo para todo el encabezado */
+  background-color: rgb(0, 80, 255); /* Color de fondo para todo el encabezado */
   padding: 20px;
   display: flex;
   justify-content: space-between; /* Alinea los elementos a los extremos */
@@ -222,6 +223,7 @@ body {
 h1 {
   margin: 0; /* Elimina el margen por defecto del h1 */
   font-family: "Eras ITC", sans-serif;
+  color: magenta;
 }
 
 .top-right-menu {
@@ -237,13 +239,18 @@ h1 {
 }
 
 .dropbtn {
-  background-color: #e0e0e0;
+  background-color: magenta;
   color: black;
   padding: 10px 15px;
   border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
   font-family: "Eras ITC", sans-serif;
+}
+
+.dropbtn:hover{
+  background-color: black;
+  color: white;
 }
 
 .dropdown-content {
@@ -280,7 +287,8 @@ h1 {
 }
 
 .dropdown-content .admin-button:hover {
-  background-color: #eee;
+  background-color: black;
+  color: white;
 }
 
 .dropdown-content h2 {
@@ -372,7 +380,7 @@ h1 {
 }
 
 .edit-delete-list li .delete-button {
-  background-color: #dc3545;
+  background-color: red;
   color: white;
   border: none;
 }
@@ -431,12 +439,17 @@ dialog form button {
 }
 
 dialog form button[type="submit"] {
-  background-color: #28a745;
+  background-color: rgb(0, 215, 0);
   color: white;
+  font-family: "Eras ITC", sans-serif;
 }
 
 dialog form button[type="button"] {
   background-color: #6c757d;
   color: white;
+}
+
+button{
+  font-family: "Eras ITC", sans-serif;
 }
 </style>

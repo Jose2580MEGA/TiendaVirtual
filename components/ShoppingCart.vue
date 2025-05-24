@@ -69,7 +69,7 @@ export default {
 
 .shopping-cart button {
   padding: 8px 12px;
-  background-color: #007bff;
+  background-color: black;
   color: white;
   border: none;
   border-radius: 4px;
@@ -78,6 +78,10 @@ export default {
 }
 
 .shopping-cart button:hover {
-  background-color: #0056b3;
+  background-color: magenta;
+}
+
+button{
+  font-family: "Eras ITC", sans-serif;
 }
 </style>
