@@ -108,6 +108,7 @@ h3 {
 
 button {
   background-color: blueviolet;
+  font-family: "Eras ITC", sans-serif;
   color: white;
   border: none;
   padding: 10px 20px; /* Padding ajustado */
